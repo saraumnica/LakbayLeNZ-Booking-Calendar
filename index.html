@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Booking Calendar</title>
+
+  <!-- Flatpickr -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
+
     .times {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       margin-top: 20px;
     }
+
     button {
       padding: 10px;
       border: 1px solid #ccc;
@@ -24,10 +29,17 @@
       cursor: pointer;
       background: white;
     }
+
     button:hover {
       background: #007bff;
       color: white;
     }
+
+    .selected {
+      background: #007bff;
+      color: white;
+    }
+
     #confirm {
       margin-top: 20px;
       padding: 12px 20px;
@@ -41,8 +53,9 @@
 </head>
 <body>
 
-<h2>Select Date & Time</h2>
-<input type="text" id="datePicker" placeholder="Select Date">
+<h2>Select Booking Dates & Time</h2>
+
+<input type="text" id="datePicker" placeholder="Select Date Range">
 
 <div class="times" id="timeSlots"></div>
 
@@ -57,30 +70,66 @@
 
   const timeContainer = document.getElementById("timeSlots");
   const confirmBtn = document.getElementById("confirm");
-  let selectedTime = null;
 
+  let selectedTime = null;
+  let selectedDates = [];
+
+  // Create time buttons
   times.forEach(time => {
     const btn = document.createElement("button");
     btn.textContent = time;
+
     btn.onclick = () => {
+      // remove previous selection
+      document.querySelectorAll(".times button").forEach(b => b.classList.remove("selected"));
+
+      btn.classList.add("selected");
       selectedTime = time;
-      confirmBtn.style.display = "block";
-      alert("Selected: " + time);
+
+      if (selectedDates.length === 2) {
+        confirmBtn.style.display = "block";
+      }
     };
+
     timeContainer.appendChild(btn);
   });
 
+  // Flatpickr with range mode
   flatpickr("#datePicker", {
-    minDate: "today"
+    mode: "range",
+    minDate: "today",
+    dateFormat: "Y-m-d",
+
+    onChange: function(selectedDatesArr) {
+      selectedDates = selectedDatesArr;
+
+      if (selectedDates.length === 2 && selectedTime) {
+        confirmBtn.style.display = "block";
+      } else {
+        confirmBtn.style.display = "none";
+      }
+    }
   });
 
+  // Confirm booking
   confirmBtn.onclick = () => {
-    const date = document.getElementById("datePicker").value;
-    if (!date || !selectedTime) {
-      alert("Please select date and time");
+    if (selectedDates.length !== 2 || !selectedTime) {
+      alert("Please select a date range and time");
       return;
     }
-    alert(`Booking confirmed for ${date} at ${selectedTime}`);
+
+    const start = selectedDates[0];
+    const end = selectedDates[1];
+
+    // Calculate number of days
+    const diffTime = Math.abs(end - start);
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    alert(`Booking confirmed:
+Start: ${start.toDateString()}
+End: ${end.toDateString()}
+Time: ${selectedTime}
+Duration: ${days} day(s)`);
   };
 </script>
 
