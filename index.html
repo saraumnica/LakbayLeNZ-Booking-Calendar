@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Calendar</title>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .times {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+    }
+    button:hover {
+      background: #007bff;
+      color: white;
+    }
+    #confirm {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Select Date & Time</h2>
+<input type="text" id="datePicker" placeholder="Select Date">
+
+<div class="times" id="timeSlots"></div>
+
+<button id="confirm">Confirm Booking</button>
+
+<script>
+  const times = [
+    "08:00 AM","08:30 AM","09:00 AM","09:30 AM",
+    "10:00 AM","10:30 AM","11:00 AM","11:30 AM",
+    "01:00 PM","01:30 PM","02:00 PM","02:30 PM"
+  ];
+
+  const timeContainer = document.getElementById("timeSlots");
+  const confirmBtn = document.getElementById("confirm");
+  let selectedTime = null;
+
+  times.forEach(time => {
+    const btn = document.createElement("button");
+    btn.textContent = time;
+    btn.onclick = () => {
+      selectedTime = time;
+      confirmBtn.style.display = "block";
+      alert("Selected: " + time);
+    };
+    timeContainer.appendChild(btn);
+  });
+
+  flatpickr("#datePicker", {
+    minDate: "today"
+  });
+
+  confirmBtn.onclick = () => {
+    const date = document.getElementById("datePicker").value;
+    if (!date || !selectedTime) {
+      alert("Please select date and time");
+      return;
+    }
+    alert(`Booking confirmed for ${date} at ${selectedTime}`);
+  };
+</script>
+
+</body>
+</html>
