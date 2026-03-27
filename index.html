@@ -1,56 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Booking Calendar</title>
+<meta charset="UTF-8">
+<title>Booking Calendar</title>
 
-  <!-- Flatpickr -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
 
-    .times {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
+.times {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
 
-    button {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      cursor: pointer;
-      background: white;
-    }
+button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  background: white;
+}
 
-    button:hover {
-      background: #007bff;
-      color: white;
-    }
+button:hover {
+  background: #007bff;
+  color: white;
+}
 
-    .selected {
-      background: #007bff;
-      color: white;
-    }
+.selected {
+  background: #007bff;
+  color: white;
+}
 
-    #confirm {
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      display: none;
-    }
-  </style>
+#confirm {
+  margin-top: 20px;
+  padding: 12px 20px;
+  display: none;
+}
+</style>
 </head>
+
 <body>
 
 <h2>Select Booking Dates & Time</h2>
@@ -62,75 +59,74 @@
 <button id="confirm">Confirm Booking</button>
 
 <script>
-  const times = [
-    "08:00 AM","08:30 AM","09:00 AM","09:30 AM",
-    "10:00 AM","10:30 AM","11:00 AM","11:30 AM",
-    "01:00 PM","01:30 PM","02:00 PM","02:30 PM"
-  ];
+const times = [
+  "8:00 AM", "9:00 AM", "10:00 AM",
+  "11:00 AM", "12:00 PM", "1:00 PM",
+  "2:00 PM", "3:00 PM", "4:00 PM"
+];
 
-  const timeContainer = document.getElementById("timeSlots");
-  const confirmBtn = document.getElementById("confirm");
+const timeContainer = document.getElementById("timeSlots");
+const confirmBtn = document.getElementById("confirm");
 
-  let selectedTime = null;
-  let selectedDates = [];
+let selectedTime = null;
+let selectedDates = [];
 
-  // Create time buttons
-  times.forEach(time => {
-    const btn = document.createElement("button");
-    btn.textContent = time;
+// Create time buttons
+times.forEach(time => {
+  const btn = document.createElement("button");
+  btn.textContent = time;
 
-    btn.onclick = () => {
-      // remove previous selection
-      document.querySelectorAll(".times button").forEach(b => b.classList.remove("selected"));
+  btn.onclick = () => {
+    document.querySelectorAll(".times button").forEach(b => b.classList.remove("selected"));
 
-      btn.classList.add("selected");
-      selectedTime = time;
+    btn.classList.add("selected");
+    selectedTime = time;
 
-      if (selectedDates.length === 2) {
-        confirmBtn.style.display = "block";
-      }
-    };
-
-    timeContainer.appendChild(btn);
-  });
-
-  // Flatpickr with range mode
-  flatpickr("#datePicker", {
-    mode: "range",
-    minDate: "today",
-    dateFormat: "Y-m-d",
-
-    onChange: function(selectedDatesArr) {
-      selectedDates = selectedDatesArr;
-
-      if (selectedDates.length === 2 && selectedTime) {
-        confirmBtn.style.display = "block";
-      } else {
-        confirmBtn.style.display = "none";
-      }
+    // Show confirm only if both date range + time selected
+    if (selectedDates.length === 2) {
+      confirmBtn.style.display = "block";
     }
-  });
+  };
 
-  // Confirm booking
-  confirmBtn.onclick = () => {
-    if (selectedDates.length !== 2 || !selectedTime) {
-      alert("Please select a date range and time");
-      return;
+  timeContainer.appendChild(btn);
+});
+
+// Flatpickr (Range Mode)
+flatpickr("#datePicker", {
+  mode: "range",
+  minDate: "today",
+  dateFormat: "Y-m-d",
+
+  onChange: function(dates) {
+    selectedDates = dates;
+
+    if (selectedDates.length === 2 && selectedTime) {
+      confirmBtn.style.display = "block";
+    } else {
+      confirmBtn.style.display = "none";
     }
+  }
+});
 
-    const start = selectedDates[0];
-    const end = selectedDates[1];
+// Confirm booking
+confirmBtn.onclick = () => {
+  if (selectedDates.length !== 2 || !selectedTime) {
+    alert("Please select a date range and time");
+    return;
+  }
 
-    // Calculate number of days
-    const diffTime = Math.abs(end - start);
-    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  const start = selectedDates[0];
+  const end = selectedDates[1];
 
-    alert(`Booking confirmed:
+  const diffTime = Math.abs(end - start);
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  alert(`Booking confirmed:
 Start: ${start.toDateString()}
 End: ${end.toDateString()}
 Time: ${selectedTime}
 Duration: ${days} day(s)`);
-  };
+};
 </script>
 
 </body>
